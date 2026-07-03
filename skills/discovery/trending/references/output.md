@@ -19,6 +19,8 @@ If a required field is missing, skip that item instead of improvising.
 - Output: Markdown
 - Language: Simplified Chinese
 - Tone: concise, factual, no hype
+- Mobile-friendly: prefer headings + short paragraphs + bullet lists
+- Never use tables
 - Only use plain text if explicitly requested
 
 ---
@@ -88,16 +90,12 @@ No mixed commentary in the title.
 Render every item in this exact order:
 
 1. 标题（`## <name>`）
-2. 名称
-3. 分类
-4. 摘要
-5. 重要性
-6. 适合人群
-7. 趋势状态
-8. 预计持续时间
-9. 置信度
-10. 证据信号
-11. 官方链接
+2. 元信息行（分类 / 趋势状态 / 预计持续时间 / 置信度）
+3. 摘要
+4. 重要性
+5. 适合人群
+6. 证据信号
+7. 官方链接
 
 ---
 
@@ -105,13 +103,18 @@ Render every item in this exact order:
 
 Use this exact label set for every item:
 
+Do not wrap the result with any meta text such as:
+- 以下是结果
+- 输出如下
+- 渲染结果
+- 输出至 xxx
+- 结果已生成
+
+The rendered output must start directly with the first trend item.
+
 ## <Name>
 
-**名称**
-<value>
-
-**分类**
-<value>
+<分类>｜<趋势状态>｜<预计持续时间>｜置信度：<置信度>
 
 **摘要**
 <value>
@@ -120,15 +123,6 @@ Use this exact label set for every item:
 <value>
 
 **适合人群**
-<value>
-
-**趋势状态**
-<value>
-
-**预计持续时间**
-<value>
-
-**置信度**
 <value>
 
 **证据信号**
@@ -141,11 +135,15 @@ Use this exact label set for every item:
 
 ## Value Rendering Rules
 
-### 名称
+### 标题
 - render `name` as-is
 
-### 分类
-- render the normalized category value as-is
+### 元信息行
+- render on a single line immediately below the title
+- use this exact format:
+	`<category>｜<trend_status>｜<expected_duration>｜置信度：<confidence>`
+- do not add a label such as “元信息”
+- do not split this line into bullets
 
 ### 摘要
 - render `summary` as one sentence
@@ -180,6 +178,8 @@ Map values exactly as follows:
 - Medium → 中
 - Low → 低
 
+After mapping, render only inside the metadata line.
+
 ### 证据信号
 - Render 1–3 bullet points
 - Preserve the source order from the data layer
@@ -197,10 +197,16 @@ Map values exactly as follows:
 ## Global Consistency Rules
 
 - max 10 items
+- output content only
 - no intro text
 - no summary paragraph before the first item
 - no conclusion
 - no extra section after the last item
+- no wrapper text before or after the content
+- no status text such as “输出至 xxx”, “已渲染”, “结果如下”
+- no tables
+- keep each item visually compact
+- avoid repeating information already present in the title
 - one blank line between sections inside an item
 - exactly one blank line between items
 - do not renumber items
