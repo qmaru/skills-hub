@@ -7,7 +7,7 @@
 This file defines the FINAL presentation layer for the `trending` skill.
 
 Input = normalized trend objects from the data layer.
-Output = deterministic Markdown in Simplified Chinese.
+Output = final deterministic Markdown in Simplified Chinese, ready to be rendered directly as webpage content.
 
 Do not invent facts that are missing from the data layer.
 If a required field is missing, skip that item instead of improvising.
@@ -21,6 +21,8 @@ If a required field is missing, skip that item instead of improvising.
 - Tone: concise, factual, no hype
 - Mobile-friendly: prefer headings + short paragraphs + bullet lists
 - Never use tables
+- The output itself is the final deliverable, not an explanation of the format
+- Write directly as renderable Markdown content
 - Only use plain text if explicitly requested
 
 ---
@@ -91,17 +93,21 @@ Render every item in this exact order:
 
 1. 标题（`## <name>`）
 2. 元信息行（分类 / 趋势状态 / 预计持续时间 / 置信度）
-3. 摘要
-4. 重要性
-5. 适合人群
-6. 证据信号
-7. 官方链接
+3. 正文段落（摘要 + 重要性）
+4. 适合人群行
+5. 证据信号
+6. 官方链接
 
 ---
 
 ## Fixed Label Template
 
 Use this exact label set for every item:
+
+This section defines the exact final Markdown shape that should be emitted.
+Do not describe the template in the answer.
+Do not explain what will be rendered.
+Directly output the rendered Markdown body.
 
 Do not wrap the result with any meta text such as:
 - 以下是结果
@@ -116,19 +122,12 @@ The rendered output must start directly with the first trend item.
 
 <分类>｜<趋势状态>｜<预计持续时间>｜置信度：<置信度>
 
-**摘要**
-<value>
+<摘要> <重要性>
 
-**重要性**
-<value>
+适合人群：<value>
 
-**适合人群**
-<value>
-
-**证据信号**
 - <value>
 
-**官方链接**
 <url>
 
 ---
@@ -146,12 +145,17 @@ The rendered output must start directly with the first trend item.
 - do not split this line into bullets
 
 ### 摘要
-- render `summary` as one sentence
+- merge `summary` and `why_it_matters` into one compact paragraph
+- format: `<summary> <why_it_matters>`
+- keep it to 2 sentences total
+- do not add labels such as “摘要” or “重要性”
 
 ### 重要性
-- render `why_it_matters` as one sentence
+- do not render as a separate section
+- append directly after `summary`
 
 ### 适合人群
+- render as a single line using this exact prefix: `适合人群：`
 - if the input is an array, join with `、`
 - if the input is already a string, keep it unchanged unless trivial whitespace cleanup is needed
 
@@ -185,11 +189,13 @@ After mapping, render only inside the metadata line.
 - Preserve the source order from the data layer
 - Each bullet must use this exact format:
 	- `<source>｜<date>｜<signal>`
+- do not add a section label such as “证据信号”
 - Do not append commentary after the bullet
 - Do not replace platform proper nouns with localized alternatives
 
 ### 官方链接
-- render `official_url` only
+- render `official_url` only as the final line of the item
+- do not add a section label such as “官方链接”
 - one line only
 
 ---
@@ -198,20 +204,62 @@ After mapping, render only inside the metadata line.
 
 - max 10 items
 - output content only
+- final Markdown only
 - no intro text
 - no summary paragraph before the first item
 - no conclusion
 - no extra section after the last item
 - no wrapper text before or after the content
 - no status text such as “输出至 xxx”, “已渲染”, “结果如下”
+- no explanation of layout, structure, or formatting choices
 - no tables
 - keep each item visually compact
 - avoid repeating information already present in the title
+- use one compact paragraph instead of multiple explanatory subsections
+- prefer final webpage copy over report-like field rendering
 - one blank line between sections inside an item
 - exactly one blank line between items
 - do not renumber items
 - do not add emojis
 - do not add ranking badges unless ranking is explicitly provided upstream
+
+---
+
+## Example Output
+
+Use the following shape as the canonical example of the final rendered Markdown:
+
+If there is any uncertainty about spacing, line breaks, or section layout:
+- prefer matching this example over inventing a new structure
+- keep the same visual rhythm and section order
+- do not introduce new labels, wrappers, or decorative elements
+
+## OpenCode
+
+Developer Tools｜增长中｜中期（1–3 个月）｜置信度：中
+
+OpenCode 今日发布新版本，并在开发者社区内同步获得明显讨论热度，成为一个快速升温的 AI 编码工具项目。它反映出开发者对本地优先、可扩展、可自托管 AI 编码工作流的需求仍在持续增强。
+
+适合人群：开发者、工具链团队、AI 应用构建者
+
+- GitHub｜2026-07-03｜发布新版本并出现明显关注增长
+- Hacker News｜2026-07-03｜进入当日讨论流并获得开发者反馈
+
+https://github.com/example/opencode
+
+## Nano Browser Agent
+
+AI｜新兴｜短期（1–4 周）｜置信度：高
+
+Nano Browser Agent 今日因新演示发布与社区扩散而快速升温，展示了浏览器代理在真实任务执行上的更成熟形态。它让浏览器代理从概念展示进一步走向可落地工具，可能影响自动化办公、测试和信息采集场景。
+
+适合人群：开发者、研究者、自动化团队、效率工具用户
+
+- 官方博客｜2026-07-03｜发布新演示并说明核心能力升级
+- Reddit｜2026-07-03｜出现集中讨论与体验反馈
+- Product Hunt｜2026-07-03｜当日上线并获得早期关注
+
+https://example.com/nano-browser-agent
 
 ---
 
