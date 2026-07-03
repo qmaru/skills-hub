@@ -24,6 +24,7 @@ If a required field is missing, skip that item instead of improvising.
 - The output itself is the final deliverable, not an explanation of the format
 - Write directly as renderable Markdown content
 - Use repeated card-like sections, not a digest list
+- Never output raw JSON, YAML, XML, or other structured serialization formats
 - Only use plain text if explicitly requested
 
 ---
@@ -54,6 +55,12 @@ If any of the following are missing, drop the item:
 - expected_duration
 - official_url
 - evidence_signals
+
+Even if the input arrives as JSON objects, arrays, or any other structured representation,
+the final answer MUST be rendered as Markdown content only.
+
+Never echo the source structure.
+Never wrap the result in a code fence.
 
 ---
 
@@ -131,6 +138,10 @@ Never start with text such as:
 - 今日热点如下
 - 1.
 - -
+- [
+- {
+- ```json
+- ```
 
 ## <Name>
 
@@ -227,6 +238,9 @@ After mapping, render only inside the metadata line.
 - do not arbitrarily stop after 3, 5, or 6 items if more valid items are available upstream
 - output content only
 - final Markdown only
+- never expose intermediate JSON
+- never return a JSON array or object to the user
+- never use fenced code blocks for the final answer
 - no intro text
 - no page title above the first item
 - no summary paragraph before the first item
@@ -286,6 +300,19 @@ Why invalid:
 Why invalid:
 - too report-like
 - does not follow the canonical final webpage copy shape defined above
+
+### Invalid pattern D: raw JSON output
+
+[
+	{
+		"name": "OpenCode",
+		"category": "Developer Tools"
+	}
+]
+
+Why invalid:
+- exposes internal structured data instead of final rendered Markdown
+- not directly usable as webpage body content in this skill's output contract
 
 ---
 

@@ -281,6 +281,9 @@ Return ONLY a structured array of trend objects in ranked order.
 
 Preferred transport format: JSON array.
 
+This JSON-like structure is an internal data handoff for downstream rendering.
+It is NOT the final user-facing presentation format.
+
 If no qualifying items exist:
 - return an empty array
 - do not add prose
