@@ -59,7 +59,62 @@ Invalid:
 - “recently popular” without timestamp
 - trending without verifiable date
 
-If fewer than 10 valid items exist → return fewer. Do NOT pad.
+Default target = 10 valid items.
+
+If fewer than 10 valid items are found on the first pass:
+- continue searching
+- widen source coverage
+- accept lower-confidence but still valid same-day items
+
+Only return fewer than 10 after exhaustive search across the allowed source set.
+Do NOT pad with fabricated or date-invalid items.
+
+---
+
+## TARGET COUNT RULE
+
+The preferred output size is exactly 10 items.
+
+The model MUST NOT stop early just because it already found a few good examples.
+Finding 3–6 items is not enough unless exhaustive search has already been completed.
+
+Priority order:
+1. 10 valid items
+2. fewer than 10 only if the allowed source universe truly does not support 10 same-day items
+
+Valid low-confidence items are acceptable near the bottom of the list if they still satisfy:
+- same-day evidence
+- verifiable source
+- attributable signal
+- non-duplicative value
+
+---
+
+## SEARCH EXPANSION LADDER
+
+When the first pass yields fewer than 10 items, expand in this exact order before giving up:
+
+1. official launches, releases, and announcements
+2. GitHub same-day releases and unusual same-day attention spikes
+3. Hacker News and Reddit same-day discussion spikes
+4. Product Hunt launches
+5. arXiv and Hugging Face Papers releases or notable publication spikes
+6. company blogs and official newsroom posts
+7. YouTube, Steam, or other same-day public signals allowed by this skill
+
+Do not stop after checking only one or two ecosystems.
+
+---
+
+## STOPPING CONDITION
+
+You may return fewer than 10 items ONLY if ALL of the following are true:
+
+- the allowed ecosystems were searched broadly
+- no additional same-day, date-verifiable items could be found
+- remaining candidates would require speculation or rule-breaking
+
+When fewer than 10 items are returned, this must be due to evidence scarcity, not model convenience.
 
 ---
 
@@ -105,6 +160,8 @@ Confidence levels:
 - High: 3+ independent ecosystems
 - Medium: 2 ecosystems
 - Low: 1 ecosystem (avoid if possible)
+
+Low confidence is allowed for lower-ranked items when needed to reach 10, but only if the item still fully satisfies the date and evidence rules.
 
 Each ecosystem = GitHub / Reddit / HN / PH / arXiv
 

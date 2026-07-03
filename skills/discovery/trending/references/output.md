@@ -23,6 +23,7 @@ If a required field is missing, skip that item instead of improvising.
 - Never use tables
 - The output itself is the final deliverable, not an explanation of the format
 - Write directly as renderable Markdown content
+- Use repeated card-like sections, not a digest list
 - Only use plain text if explicitly requested
 
 ---
@@ -98,6 +99,10 @@ Render every item in this exact order:
 5. 证据信号
 6. 官方链接
 
+Every item MUST begin with a level-2 Markdown heading: `## <name>`.
+Do not use ordered lists as the outer structure.
+Do not group multiple items under one shared heading.
+
 ---
 
 ## Fixed Label Template
@@ -117,6 +122,15 @@ Do not wrap the result with any meta text such as:
 - 结果已生成
 
 The rendered output must start directly with the first trend item.
+
+The first non-empty line of the entire output MUST be:
+`## <name>`
+
+Never start with text such as:
+- Here are today's ...
+- 今日热点如下
+- 1.
+- -
 
 ## <Name>
 
@@ -143,12 +157,16 @@ The rendered output must start directly with the first trend item.
 	`<category>｜<trend_status>｜<expected_duration>｜置信度：<confidence>`
 - do not add a label such as “元信息”
 - do not split this line into bullets
+- do not merge this line into the title
+- do not move this line below the evidence list
 
 ### 摘要
 - merge `summary` and `why_it_matters` into one compact paragraph
 - format: `<summary> <why_it_matters>`
 - keep it to 2 sentences total
 - do not add labels such as “摘要” or “重要性”
+- do not turn the paragraph into a list item
+- do not prefix it with dashes, numbers, or quotes
 
 ### 重要性
 - do not render as a separate section
@@ -158,6 +176,7 @@ The rendered output must start directly with the first trend item.
 - render as a single line using this exact prefix: `适合人群：`
 - if the input is an array, join with `、`
 - if the input is already a string, keep it unchanged unless trivial whitespace cleanup is needed
+- do not convert this line into parentheses or trailing inline notes after the paragraph
 
 ### 趋势状态
 Map enum values exactly as follows:
@@ -197,15 +216,19 @@ After mapping, render only inside the metadata line.
 - render `official_url` only as the final line of the item
 - do not add a section label such as “官方链接”
 - one line only
+- do not wrap the URL in extra prose such as “来源：” or “链接：”
 
 ---
 
 ## Global Consistency Rules
 
 - max 10 items
+- render all upstream items up to 10
+- do not arbitrarily stop after 3, 5, or 6 items if more valid items are available upstream
 - output content only
 - final Markdown only
 - no intro text
+- no page title above the first item
 - no summary paragraph before the first item
 - no conclusion
 - no extra section after the last item
@@ -213,6 +236,9 @@ After mapping, render only inside the metadata line.
 - no status text such as “输出至 xxx”, “已渲染”, “结果如下”
 - no explanation of layout, structure, or formatting choices
 - no tables
+- no ordered-list outer structure
+- no single numbered digest containing multiple trends
+- no “标题 + 1..10 列表” layout
 - keep each item visually compact
 - avoid repeating information already present in the title
 - use one compact paragraph instead of multiple explanatory subsections
@@ -222,6 +248,44 @@ After mapping, render only inside the metadata line.
 - do not renumber items
 - do not add emojis
 - do not add ranking badges unless ranking is explicitly provided upstream
+
+---
+
+## Disallowed Output Patterns
+
+The following patterns are explicitly invalid even if the facts are correct:
+
+### Invalid pattern A: numbered digest
+
+Here are today's AI热点:
+
+1. 项目名 — 一整句说明（来源：xxx）
+2. 项目名 — 一整句说明（来源：xxx）
+
+Why invalid:
+- uses a shared intro heading
+- uses ordered list as the outer structure
+- does not render each item as an independent Markdown card
+
+### Invalid pattern B: single-line compressed item
+
+## 项目名 — 分类｜状态｜持续时间｜置信度｜摘要｜来源
+
+Why invalid:
+- merges multiple required sections into one line
+- destroys mobile readability
+
+### Invalid pattern C: report-style field dump
+
+## 项目名
+摘要：...
+重要性：...
+适合人群：...
+官方链接：...
+
+Why invalid:
+- too report-like
+- does not follow the canonical final webpage copy shape defined above
 
 ---
 
