@@ -361,3 +361,29 @@ This skill MUST NOT define:
 - headings or presentation prose
 
 It ONLY returns normalized, presentation-agnostic trend records for a downstream output layer.
+
+---
+
+## HANDOFF RULE FOR FINAL RENDERING
+
+This skill is only the data layer.
+
+If the caller intends to show user-facing content:
+- it MUST pass the normalized records into the downstream presentation layer
+- it MUST read and follow `references/output.md` for the final rendering contract
+- it MUST NOT let this data-layer skill improvise Markdown directly
+
+If the caller cannot guarantee the downstream renderer:
+- return the structured data only
+- do not mix JSON and Markdown
+- do not generate a report-style summary as a fallback
+
+The final renderer is responsible for:
+- language
+- headings
+- line breaks
+- bullet formatting
+- section order
+- failure copy
+
+This separation is strict.

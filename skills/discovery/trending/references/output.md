@@ -109,6 +109,7 @@ Render every item in this exact order:
 Every item MUST begin with a level-2 Markdown heading: `## <name>`.
 Do not use ordered lists as the outer structure.
 Do not group multiple items under one shared heading.
+Do not add a date banner, page title, or topic digest heading above the first item.
 
 ---
 
@@ -136,6 +137,10 @@ The first non-empty line of the entire output MUST be:
 Never start with text such as:
 - Here are today's ...
 - 今日热点如下
+- 根据今日搜索结果
+- 以下是 2026 年 7 月 5 日 AI 领域的热点话题
+- 2026年7月4日 AI热点
+- 🔥 今日 AI 热点
 - 1.
 - -
 - [
@@ -243,6 +248,8 @@ After mapping, render only inside the metadata line.
 - never use fenced code blocks for the final answer
 - no intro text
 - no page title above the first item
+- no H1 heading such as `# 今日 AI 热点` or `# 2026年7月4日 AI热点`
+- no H3/H4 wrapper heading above an item block
 - no summary paragraph before the first item
 - no conclusion
 - no extra section after the last item
@@ -262,6 +269,10 @@ After mapping, render only inside the metadata line.
 - do not renumber items
 - do not add emojis
 - do not add ranking badges unless ranking is explicitly provided upstream
+- do not prefix item titles with `1.`, `2.`, or any other numbering
+- do not render source bullets with labels like `来源：`, `信号：`, or `官方链接：`
+- do not replace the metadata line with loose prose or separate badges
+- do not insert decorative separators before the first item
 
 ---
 
@@ -280,6 +291,50 @@ Why invalid:
 - uses a shared intro heading
 - uses ordered list as the outer structure
 - does not render each item as an independent Markdown card
+
+### Invalid pattern E: date banner + section heading
+
+根据今日搜索结果，以下是 2026年7月5日 AI领域的热点话题：
+
+---
+
+## 今日 AI 热点
+
+1. Anthropic 发布 Claude Sonnet 5
+
+Why invalid:
+- adds wrapper prose before the first item
+- adds a shared section heading
+- turns items into a numbered digest
+- does not start directly with `## <name>`
+
+### Invalid pattern F: date headline page layout
+
+# 2026年7月4日 AI热点
+
+1. Claude Fable 5 恢复全球可用
+
+Why invalid:
+- uses a page title instead of item cards
+- uses ordered-list outer structure
+- breaks the required first-line rule
+
+### Invalid pattern G: semi-structured card with custom labels
+
+## JadePuffer
+
+Security｜新兴｜闪现型（几天）｜置信度：高
+
+...
+
+- BleepingComputer｜2026-07-04｜...
+
+https://example.com
+
+Why invalid when produced from this skill:
+- this shape is only valid if every required field is present in the exact canonical order
+- custom prefaces, extra prose wrappers, or omitted required lines make the card invalid
+- the renderer must follow the canonical template exactly, not approximately
 
 ### Invalid pattern B: single-line compressed item
 
@@ -324,6 +379,7 @@ If there is any uncertainty about spacing, line breaks, or section layout:
 - prefer matching this example over inventing a new structure
 - keep the same visual rhythm and section order
 - do not introduce new labels, wrappers, or decorative elements
+- if a generated answer visually resembles any invalid pattern above, rewrite it before returning
 
 ## OpenCode
 
