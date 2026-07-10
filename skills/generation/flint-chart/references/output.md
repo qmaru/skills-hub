@@ -1,14 +1,20 @@
 # Output
 
-Render the chart as a PNG file.
+The chart image MUST be produced by the Flint MCP tool `render_chart`.
 
-Encode the PNG using the operating system's `base64` command.
+`render_chart` returns an image artifact (PNG or SVG). It does NOT return a Data URL.
 
-The encoded output must not contain line breaks.
+The Data URL is the final processing step, performed after `render_chart`:
 
-Construct the final Data URL using this format:
+1. Take the image bytes returned by `render_chart`.
+2. Base64-encode those bytes. The encoded output must not contain line breaks.
+3. Construct the Data URL:
 
-data:image/png;base64,<BASE64>
+   data:image/png;base64,<BASE64>
+
+   (or `data:image/svg+xml;base64,<BASE64>` when SVG was requested.)
+
+Do NOT render or screenshot the chart manually. Only the final base64 encoding of the `render_chart` output is performed by you.
 
 ## Final Output Rules
 
@@ -17,6 +23,8 @@ The final response MUST be exactly one line.
 The final response MUST start with:
 
 data:image/png;base64,
+
+(or `data:image/svg+xml;base64,...` for SVG output.)
 
 The final response MUST contain nothing except the Data URL.
 
@@ -43,7 +51,5 @@ Do NOT output labels.
 Do NOT output headings.
 
 Do NOT output blank lines.
-
-Use only the operating system's `base64` command.
 
 Return only the Data URL.

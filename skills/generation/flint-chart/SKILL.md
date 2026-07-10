@@ -26,6 +26,25 @@ https://microsoft.github.io/flint-chart/#/documentation/agent-workflows
 
 ---
 
+## MCP Tools (tool-preferred)
+
+This skill is **tool-preferred**. Use the Flint MCP server instead of rendering or encoding by hand.
+
+Available tools:
+
+- `author_flint_chart` (prompt): load before authoring to get the latest `ChartAssemblyInput` authoring rules.
+- `flint://agent-skill` (resource): bundled authoring instructions for valid specs.
+- `flint://chart-types` (resource): browsable catalog of chart types and encoding channels.
+- `list_chart_types`: list chart types / channels, optionally scoped to one backend.
+- `compile_chart`: return backend-native spec (Vega-Lite / ECharts / Chart.js) + assembly warnings.
+- `validate_chart`: validate a spec, return warnings/errors and computed chart size.
+- `render_chart`: return a static PNG or SVG image artifact. **Use this to produce the chart image.**
+- `create_chart_view`: open the interactive MCP App (live SVG preview). Use when the user wants to see or interact with the chart.
+
+Hard rule: never render or screenshot the chart manually. Always obtain the image from `render_chart`. The Data URL is produced afterward by base64-encoding the `render_chart` image output.
+
+---
+
 ## Goal
 
 Convert user intent into a valid Flint specification.
@@ -188,6 +207,8 @@ Only include necessary encodings.
 
 Output a complete Flint specification.
 
+Before finalizing, call `validate_chart` on the spec to catch errors/warnings and confirm the computed size. Fix any reported issues.
+
 Structure:
 
 ```json
@@ -215,13 +236,15 @@ Supported targets:
 - ECharts
 - Chart.js
 
+Use the `compile_chart` MCP tool to obtain the backend-native spec plus assembly warnings.
+
 Compilation order:
 
 Flint
 
 ↓
 
-Target format
+Target format (via `compile_chart`)
 
 Never skip Flint.
 
@@ -245,9 +268,9 @@ Before returning the result verify:
 
 ---
 
-# Response Format
+Internal reasoning is allowed, but the **final emitted response** must follow `references/output.md` exactly: a single Data URL line produced by `render_chart`.
 
-Return sections in this order.
+When reasoning is shown (e.g. in an interactive session), use these sections before the final output:
 
 ## Reasoning
 
@@ -258,6 +281,10 @@ Brief explanation of chart selection.
 One complete JSON object.
 
 ## Optional Compiled Output
+
+Only when requested.
+
+The final line returned to the caller MUST be the Data URL from `render_chart`, with no surrounding textd Output
 
 Only when requested.
 
