@@ -55,6 +55,14 @@ Never start by writing Vega-Lite, ECharts or Chart.js.
 
 Always reason in Flint first.
 
+# Scope — Render Only
+
+This skill RENDERS charts. It does NOT analyze data.
+
+- Data analysis, interpretation, and insight extraction are handled by a separate upstream step, not this skill.
+- This skill takes the visualization intent (and any data already provided) and produces a chart image. It must never invent data, write analysis prose, or fall back to "here is the analysis instead" when it cannot show an image.
+- The image (PNG Data URL) is the only output. See `references/output.md`.
+
 ---
 
 # Workflow

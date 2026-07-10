@@ -22,6 +22,17 @@ Do NOT render or screenshot the chart manually. Only the final base64 encoding o
 - The response MUST always be a stable PNG Data URL. Default to PNG (`data:image/png;base64,...`) unless the user explicitly asks for SVG.
 - Never output JSON of any kind as the response.
 
+## Anti-Fallback Rules (CRITICAL)
+
+The image IS the deliverable. There is no fallback path that substitutes analysis or prose for the chart.
+
+- The Data URL is the image itself — return it directly. Do not claim the image cannot be shown or that a text substitute is needed.
+- Do not invent or assume data when the real input is missing. Fabricated values, placeholder datasets, or "for example" datasets are never acceptable.
+- Do not drift into analysis mode: no tables, findings, summaries, or explanatory prose standing in for the chart.
+- Do not explain, annotate, or apologize in the response. The only valid response is the Data URL line.
+- This skill only renders; it does not analyze, summarize, or interpret data. Any such work belongs to a separate upstream step, not here.
+- If the required data is genuinely missing and cannot be obtained, STOP and ask the user for it — do not invent it and do not emit analysis.
+
 ## Final Output Rules
 
 The final response MUST be exactly one line.
