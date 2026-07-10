@@ -1,0 +1,299 @@
+---
+name: flint-chart
+description: |
+  Expert workflow for creating charts with Microsoft Flint.
+
+  Invoke this skill whenever the request involves:
+
+  - charts
+  - graphs
+  - dashboards
+  - visualization
+  - plotting
+  - data analysis
+  - chart recommendation
+  - Vega-Lite
+  - ECharts
+  - Chart.js
+---
+
+# Flint Chart Workflow
+
+Reference
+
+https://microsoft.github.io/flint-chart/#/
+https://microsoft.github.io/flint-chart/#/documentation/agent-workflows
+
+---
+
+## Goal
+
+Convert user intent into a valid Flint specification.
+
+Never start by writing Vega-Lite, ECharts or Chart.js.
+
+Always reason in Flint first.
+
+---
+
+# Workflow
+
+Follow every step in order.
+
+## Step 1 — Understand the request
+
+Determine:
+
+- visualization goal
+- expected audience
+- important measures
+- important dimensions
+- comparison or relationship
+- whether the user already supplied data
+
+If required information is missing,
+ask only the minimum questions.
+
+---
+
+## Step 2 — Understand the dataset
+
+Identify:
+
+Dimensions
+
+Measures
+
+Temporal fields
+
+Geographic fields
+
+Identifiers
+
+Ignore columns unrelated to visualization.
+
+---
+
+## Step 3 — Infer semantic types
+
+Infer semantic types for every field.
+
+Examples:
+
+Category
+
+Ordinal
+
+Nominal
+
+Currency
+
+Percentage
+
+Temperature
+
+Boolean
+
+Latitude
+
+Longitude
+
+Year
+
+YearMonth
+
+Date
+
+Timestamp
+
+Quantity
+
+Rank
+
+Never require the user to specify these unless ambiguous.
+
+---
+
+## Step 4 — Select chart type
+
+Choose the chart that best answers the question.
+
+Typical mapping:
+
+Comparison
+→ Bar
+
+Trend
+→ Line
+
+Distribution
+→ Histogram
+
+Relationship
+→ Scatter
+
+Composition
+→ Pie
+
+Hierarchy
+→ Treemap
+
+Correlation
+→ Scatter
+
+Density
+→ Heatmap
+
+Ranking
+→ Ordered Bar
+
+If multiple charts are reasonable,
+briefly explain why one was selected.
+
+---
+
+## Step 5 — Build encodings
+
+Use Flint encodings.
+
+Possible channels:
+
+x
+
+y
+
+color
+
+size
+
+shape
+
+theta
+
+radius
+
+column
+
+row
+
+tooltip
+
+text
+
+Only include necessary encodings.
+
+---
+
+## Step 6 — Produce Flint specification
+
+Output a complete Flint specification.
+
+Structure:
+
+```json
+{
+  "data": {},
+  "semantic_types": {},
+  "chart_spec": {
+    "chartType": "",
+    "encodings": {}
+  }
+}
+```
+
+The specification must be internally consistent.
+
+---
+
+## Step 7 — Optional compilation
+
+Only if explicitly requested.
+
+Supported targets:
+
+- Vega-Lite
+- ECharts
+- Chart.js
+
+Compilation order:
+
+Flint
+
+↓
+
+Target format
+
+Never skip Flint.
+
+---
+
+# Validation Checklist
+
+Before returning the result verify:
+
+✓ chart type matches user intent
+
+✓ semantic types are complete
+
+✓ encodings are valid
+
+✓ measures and dimensions are not reversed
+
+✓ unnecessary channels removed
+
+✓ specification is minimal
+
+---
+
+# Response Format
+
+Return sections in this order.
+
+## Reasoning
+
+Brief explanation of chart selection.
+
+## Flint Specification
+
+One complete JSON object.
+
+## Optional Compiled Output
+
+Only when requested.
+
+---
+
+# Rules
+
+Never invent data.
+
+Never fabricate field names.
+
+Never omit semantic_types.
+
+Never generate rendering-library configuration first.
+
+Prefer Flint-native concepts over renderer-specific options.
+
+Keep the specification concise.
+
+---
+
+# Reference
+
+Official documentation:
+
+https://microsoft.github.io/flint-chart/#/
+https://microsoft.github.io/flint-chart/#/documentation/agent-workflows
+
+## References
+
+- references/output.md
+
+The requirements in references/output.md are mandatory.
+
+When producing the final response, follow references/output.md exactly.
+
+If there is any conflict between this skill and references/output.md, references/output.md takes precedence.
+
+Do not produce any output before applying the rules in references/output.md.
