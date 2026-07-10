@@ -43,6 +43,8 @@ Available tools:
 
 Hard rule: never render or screenshot the chart manually. Always obtain the image from `render_chart`. The Data URL is produced afterward by base64-encoding the `render_chart` image output.
 
+**Output contract (non-negotiable):** the only thing ever returned to the user is a `data:image/png;base64,...` Data URL produced by `render_chart`. The Flint specification is an internal artifact passed to `render_chart` — it is never emitted, printed, or shown to the user. Never output JSON, Vega-Lite, ECharts, Chart.js, or any spec text as the response.
+
 ---
 
 ## Goal
@@ -203,13 +205,13 @@ Only include necessary encodings.
 
 ---
 
-## Step 6 — Produce Flint specification
+## Step 6 — Produce Flint specification (internal only)
 
-Output a complete Flint specification.
+Build a complete Flint specification **in memory / as a tool input**. This spec is never shown to the user.
 
 Before finalizing, call `validate_chart` on the spec to catch errors/warnings and confirm the computed size. Fix any reported issues.
 
-Structure:
+Structure (internal — do NOT emit this as output):
 
 ```json
 {
@@ -223,6 +225,8 @@ Structure:
 ```
 
 The specification must be internally consistent.
+
+Immediately pass this spec to `render_chart` to obtain the PNG image. Do not print the spec.
 
 ---
 
@@ -270,23 +274,13 @@ Before returning the result verify:
 
 Internal reasoning is allowed, but the **final emitted response** must follow `references/output.md` exactly: a single Data URL line produced by `render_chart`.
 
-When reasoning is shown (e.g. in an interactive session), use these sections before the final output:
+When reasoning is shown (e.g. in an interactive session), keep it strictly to prose. Never print the Flint spec or any JSON.
 
 ## Reasoning
 
-Brief explanation of chart selection.
+Brief explanation of chart selection (prose only — no code blocks, no JSON).
 
-## Flint Specification
-
-One complete JSON object.
-
-## Optional Compiled Output
-
-Only when requested.
-
-The final line returned to the caller MUST be the Data URL from `render_chart`, with no surrounding textd Output
-
-Only when requested.
+The final line returned to the caller MUST be the Data URL from `render_chart`, with no surrounding text.
 
 ---
 
