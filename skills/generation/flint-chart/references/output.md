@@ -30,7 +30,7 @@ The image IS the deliverable. There is no fallback path that substitutes analysi
 - Do not invent or assume data when the real input is missing. Fabricated values, placeholder datasets, or "for example" datasets are never acceptable.
 - Do not drift into analysis mode: no tables, findings, summaries, or explanatory prose standing in for the chart.
 - Do not explain, annotate, or apologize in the response. The only valid response is the Data URL line.
-- This skill only renders; it does not analyze, summarize, or interpret data. Any such work belongs to a separate upstream step, not here.
+- This skill only renders; it does not analyze, summarize, or interpret data. Any such work belongs to a separate upstream step (e.g. `reasoning/analyze`), not here.
 - If the required data is genuinely missing and cannot be obtained, STOP and ask the user for it — do not invent it and do not emit analysis.
 
 ## Final Output Rules

@@ -43,7 +43,7 @@ Available tools:
 
 Hard rule: never render or screenshot the chart manually. Always obtain the image from `render_chart`. The Data URL is produced afterward by base64-encoding the `render_chart` image output.
 
-**Output contract (non-negotiable):** the only thing ever returned to the user is a `data:image/png;base64,...` Data URL produced by `render_chart`. The Flint specification is an internal artifact passed to `render_chart` — it is never emitted, printed, or shown to the user. Never output JSON, Vega-Lite, ECharts, Chart.js, or any spec text as the response.
+**Output contract (non-negotiable):** the only thing ever returned to the user is a `data:image/png;base64,...` Data URL produced by `render_chart`. `flint-chart` is the terminal output call of the pipeline — whatever invokes it receives the chart as the last thing returned, and nothing downstream reformats or re-emits it. The Flint specification is an internal artifact passed to `render_chart` — it is never emitted, printed, or shown to the user. Never output JSON, Vega-Lite, ECharts, Chart.js, or any spec text as the response.
 
 ---
 

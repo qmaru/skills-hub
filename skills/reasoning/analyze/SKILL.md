@@ -202,5 +202,12 @@ This skill MUST NOT:
 - define Markdown
 - define formatting
 - define final structure
+- author or hand-encode chart specs / images / Data URLs itself
 
-It ONLY produces structured analytical content for downstream formatting layer.
+It produces structured analytical content for downstream use. When the request is to output a chart, its final output is a Flint Data URL obtained by delegating to the `generation/flint-chart` skill — it does not generate that image inline.
+
+### Handoff to visualization
+
+When the request is to produce a chart, this skill's final output IS a Flint Data URL. It does not author or embed the image itself; instead it delegates rendering to the `generation/flint-chart` skill (the terminal output call), which returns `data:image/png;base64,...`. analyze then returns that Data URL as its own final response.
+
+This keeps the image produced by the rendering layer while making the Data URL the terminal output of the analyze invocation — so the runtime receives a single valid Data URL rather than analysis prose (which non-image runtimes such as opencode would reject). For non-chart requests, this skill returns only structured analysis as before.
