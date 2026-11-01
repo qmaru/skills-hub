@@ -247,11 +247,11 @@ When `shortfall_reason` is not null, append one closing note after the last item
 
 - one blank line after the last item's official URL
 - a single Simplified Chinese paragraph, with no heading, label, or list
-- format: `今日仅找到 <N> 条符合规则的趋势（上限 10 条）。<shortfall_reason 的简体中文表述>`
+- format: `最近3天内仅找到 <N> 条符合规则的趋势（上限 10 条）。<shortfall_reason 的简体中文表述>`
 - `<N>` is the number of rendered items
 - translate `shortfall_reason` into Simplified Chinese if needed, without adding causes it does not state
 
-When `items` is empty, render only this note, with no item cards.
+When `items` is empty, follow the Failure Rule instead.
 When `shortfall_reason` is null, render no note.
 
 ---
@@ -405,12 +405,12 @@ If there is any uncertainty about spacing, line breaks, or section layout:
 
 Developer Tools｜增长中｜中期（1–3 个月）｜置信度：中
 
-OpenCode 今日发布新版本，并在开发者社区内同步获得明显讨论热度，成为一个快速升温的 AI 编码工具项目。它反映出开发者对本地优先、可扩展、可自托管 AI 编码工作流的需求仍在持续增强。
+OpenCode 近3天内发布新版本，并在开发者社区内同步获得明显讨论热度，成为一个快速升温的 AI 编码工具项目。它反映出开发者对本地优先、可扩展、可自托管 AI 编码工作流的需求仍在持续增强。
 
 适合人群：开发者、工具链团队、AI 应用构建者
 
 - GitHub｜2026-07-03｜发布新版本并出现明显关注增长
-- Hacker News｜2026-07-03｜进入当日讨论流并获得开发者反馈
+- Hacker News｜2026-07-03｜进入近期讨论流并获得开发者反馈
 
 https://github.com/example/opencode
 
@@ -418,13 +418,13 @@ https://github.com/example/opencode
 
 AI｜新兴｜短期（1–4 周）｜置信度：高
 
-Nano Browser Agent 今日因新演示发布与社区扩散而快速升温，展示了浏览器代理在真实任务执行上的更成熟形态。它让浏览器代理从概念展示进一步走向可落地工具，可能影响自动化办公、测试和信息采集场景。
+Nano Browser Agent 近3天内因新演示发布与社区扩散而快速升温，展示了浏览器代理在真实任务执行上的更成熟形态。它让浏览器代理从概念展示进一步走向可落地工具，可能影响自动化办公、测试和信息采集场景。
 
 适合人群：开发者、研究者、自动化团队、效率工具用户
 
 - 官方博客｜2026-07-03｜发布新演示并说明核心能力升级
 - Reddit｜2026-07-03｜出现集中讨论与体验反馈
-- Product Hunt｜2026-07-03｜当日上线并获得早期关注
+- Product Hunt｜2026-07-03｜近期上线并获得早期关注
 
 https://example.com/nano-browser-agent
 
@@ -440,6 +440,6 @@ https://example.com/nano-browser-agent
 
 ## Failure Rule
 
-If no valid items remain after filtering, output exactly:
+If `items` is empty, output only this paragraph, with `shortfall_reason` rendered in Simplified Chinese after the sentence:
 
-今天没有发现符合条件的趋势。
+最近3天内没有发现符合条件的趋势。

@@ -1,6 +1,6 @@
 ---
 name: trending
-description: Discover newly emerging, newly launched, newly discussed, or rapidly accelerating trends with real-time momentum (today only). Return normalized, high-signal trend records for downstream rendering.
+description: Discover newly emerging, newly launched, newly discussed, or rapidly accelerating trends with real-time momentum (last 3 days only). Return normalized, high-signal trend records for downstream rendering.
 compatibility: Requires outbound HTTP access using native runtime networking (fetch/urllib/requests/etc). No additional dependencies required.
 ---
 
@@ -10,7 +10,7 @@ compatibility: Requires outbound HTTP access using native runtime networking (fe
 Identify trends that are:
 - newly released
 - rapidly growing
-- actively discussed today
+- actively discussed within the last 3 days
 - gaining measurable momentum
 
 This layer ONLY handles:
@@ -34,7 +34,7 @@ This skill is a data-normalization layer.
 Its job is NOT to write a polished report.
 Its job IS to return stable, complete, downstream-ready trend records.
 
-If a field cannot be supported by evidence or cautious inference from the same-day signals:
+If a field cannot be supported by evidence or cautious inference from the recent signals:
 - leave it empty only when the schema explicitly allows it
 - otherwise reject the item
 
@@ -45,17 +45,17 @@ Do not output commentary outside the final structured result.
 
 ## HARD TIME CONSTRAINT
 
-Only include items with evidence occurring TODAY (user local time 00:00–23:59).
+Only include items with evidence occurring within the last 3 calendar days, today included (user local time: from 00:00 two days ago through 23:59 today).
 
 Valid triggers:
 - official launch
 - release
 - announcement
 - publication
-- discussion spike (today)
+- discussion spike (within the last 3 days)
 
 Invalid:
-- yesterday or earlier
+- older than 3 calendar days
 - “recently popular” without timestamp
 - trending without verifiable date
 
@@ -77,7 +77,7 @@ The output holds at most 10 items. Reaching 10 is not required.
 
 Run the search as a loop, not a single pass:
 
-1. Collect same-day candidates from ladder step 1 onward. Do not apply rejection rules while collecting; keep every candidate that has a source URL and a date.
+1. Collect candidates within the window from ladder step 1 onward. Do not apply rejection rules while collecting; keep every candidate that has a source URL and a date.
 2. After each ladder step, validate the collected candidates against the EVIDENCE, CROSS-SOURCE, and REJECTION rules and count the accepted items.
 3. If accepted items >= 10, stop searching and return the top 10 by ranking.
 4. If accepted items < 10, continue to the next ladder step.
@@ -89,7 +89,7 @@ Priority order:
 2. Up to 10 items; fewer is allowed only when the ladder is exhausted, with shortfall_reason set
 
 Valid low-confidence items are acceptable near the bottom of the list only if they still satisfy:
-- same-day evidence
+- evidence within the window
 - verifiable source
 - attributable signal
 - non-duplicative value
@@ -101,12 +101,12 @@ Valid low-confidence items are acceptable near the bottom of the list only if th
 When accepted items are fewer than 10, expand in this exact order, stopping once 10 are accepted:
 
 1. official launches, releases, and announcements
-2. GitHub same-day releases and unusual same-day attention spikes
-3. Hacker News and Reddit same-day discussion spikes
+2. GitHub releases and unusual attention spikes within the window
+3. Hacker News and Reddit discussion spikes within the window
 4. Product Hunt launches
 5. arXiv and Hugging Face Papers releases or notable publication spikes
 6. company blogs and official newsroom posts
-7. YouTube, Steam, or other same-day public signals allowed by this skill
+7. Steam, or other public signals within the window allowed by this skill
 
 Do not stop after checking only one or two ecosystems.
 
@@ -117,7 +117,7 @@ Do not stop after checking only one or two ecosystems.
 Stop searching when either:
 
 - accepted items reach 10, or
-- every ladder step (1–7) was searched with today's date filter
+- every ladder step (1–7) was searched with the 3-day date filter
 
 If the search stops with fewer than 10 accepted items, return them with shortfall_reason set (see SHORTFALL RULE).
 Do not lower evidence standards, add speculative items, or pad to reach 10.
@@ -128,8 +128,8 @@ Do not lower evidence standards, add speculative items, or pad to reach 10.
 
 When fewer than 10 items are returned, set shortfall_reason to one short factual sentence that states:
 
-- how many same-day candidates were checked
-- the main reasons candidates were rejected (for example: missing date, unverifiable source, no same-day trigger, insufficient evidence for category or summary)
+- how many candidates within the window were checked
+- the main reasons candidates were rejected (for example: missing date, unverifiable source, no trigger within the window, insufficient evidence for category or summary)
 
 When 10 items are returned, shortfall_reason is null.
 Describe only what was actually searched and rejected. Do not invent a cause.
@@ -140,13 +140,26 @@ Describe only what was actually searched and rejected. Do not invent a cause.
 
 Use only raw global ecosystems:
 
-- GitHub (release / spike required)
-- Hacker News (today posts)
-- Reddit (today posts)
-- Product Hunt (today)
+- GitHub (release / spike required; unauthenticated REST API, about 60 requests/hour)
+- Hacker News (posts within the window)
+- Reddit (RSS feeds only; .json endpoints return 403 anonymously)
+- Product Hunt (Atom RSS feed only; GraphQL API requires a token)
 - arXiv / Hugging Face Papers
 - Official blogs / company announcements
-- Steam / YouTube (today content only)
+- Steam (releases within the window)
+
+Endpoints verified as reachable without authentication:
+- GitHub: https://api.github.com/repos/{owner}/{repo}/releases/latest
+- Hacker News: https://hn.algolia.com/api/v1/search_by_date?tags=story&numericFilters=created_at_i%3E{unix_time}
+- Reddit: https://www.reddit.com/r/{subreddit}/.rss
+- Product Hunt: https://www.producthunt.com/feed
+- arXiv: http://export.arxiv.org/api/query?search_query={query}&sortBy=submittedDate
+- Hugging Face Papers: https://huggingface.co/api/daily_papers
+- Steam: https://store.steampowered.com/search/results/?sort_by=Released_DESC&category1=998&json=1
+- OpenAI: https://openai.com/news/rss.xml
+- Anthropic: https://www.anthropic.com/news
+
+Do not use sources that require an API key or token. If a source returns 403, 404, or a login page, skip it for this run instead of retrying.
 
 DO NOT prefer any language or region.
 
@@ -158,7 +171,7 @@ Each trend MUST include:
 
 - at least 1 verifiable source
 - explicit publication date (YYYY-MM-DD), taken from the timestamp the source itself shows (GitHub release date, Hacker News or Reddit post time, Product Hunt launch date, arXiv submission date)
-- evidence must be TODAY
+- evidence must be within the last 3 days
 - a clearly attributable signal (release / launch / discussion spike / ranking / paper / announcement)
 
 Reject if:
@@ -167,7 +180,7 @@ Reject if:
 - uncertain timestamp
 - inferred date
 - non-verifiable source
-- only generic popularity with no same-day trigger
+- only generic popularity with no trigger within the window
 
 ---
 
@@ -189,7 +202,7 @@ Different feeds within same platform do NOT count separately.
 
 ## RANKING PRIORITY
 
-1. Recency (today validity)
+1. Recency (newer first within the 3-day window)
 2. Multi-source strength
 3. Growth velocity
 4. Practical usefulness
@@ -198,7 +211,7 @@ Different feeds within same platform do NOT count separately.
 Tie-break in this exact order:
 1. official source present
 2. more independent ecosystems
-3. stronger same-day action signal (launch/release > ranking/post > discussion only)
+3. stronger recent action signal (launch/release > ranking/post > discussion only)
 4. clearer practical adoption path
 5. alphabetical by normalized name
 
@@ -242,7 +255,7 @@ Use exactly one of:
 ### Summary
 - 1 sentence only
 - 20–40 words preferred
-- describe the concrete same-day signal plus what it is
+- describe the concrete recent signal plus what it is
 - no hype language
 
 ### Why-it-matters
@@ -347,7 +360,7 @@ Evidence field rules:
 
 - source: platform or publisher name
 - date: YYYY-MM-DD
-- signal: concise factual note of the same-day event
+- signal: concise factual note of the event within the window
 - url: direct supporting URL
 
 Hard constraints:
@@ -365,12 +378,12 @@ Hard constraints:
 
 Reject an item if ANY of the following is true:
 
-- evidence is not from today
+- evidence is older than 3 calendar days
 - no official or attributable source can be cited
 - summary requires speculation to sound meaningful
 - category cannot be assigned confidently
 - official_url is missing when an official source exists but was not checked
-- the item is merely evergreen popularity rather than a same-day trend trigger
+- the item is merely evergreen popularity rather than a trend trigger within the window
 
 ---
 
