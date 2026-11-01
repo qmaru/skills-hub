@@ -31,6 +31,9 @@ If a required field is missing, skip that item instead of improvising.
 
 ## Input Contract Assumption
 
+The input is the data-layer object: `items` (trend objects) and `shortfall_reason` (string or null).
+Render each entry of `items` as a card. Use `shortfall_reason` only for the Shortfall Note below.
+
 Each trend item is expected to provide:
 
 1. name
@@ -134,6 +137,8 @@ The rendered output must start directly with the first trend item.
 The first non-empty line of the entire output MUST be:
 `## <name>`
 
+Exception: when `items` is empty, the output is only the Shortfall Note.
+
 Never start with text such as:
 - Here are today's ...
 - 今日热点如下
@@ -236,6 +241,21 @@ After mapping, render only inside the metadata line.
 
 ---
 
+## Shortfall Note
+
+When `shortfall_reason` is not null, append one closing note after the last item:
+
+- one blank line after the last item's official URL
+- a single Simplified Chinese paragraph, with no heading, label, or list
+- format: `今日仅找到 <N> 条符合规则的趋势（上限 10 条）。<shortfall_reason 的简体中文表述>`
+- `<N>` is the number of rendered items
+- translate `shortfall_reason` into Simplified Chinese if needed, without adding causes it does not state
+
+When `items` is empty, render only this note, with no item cards.
+When `shortfall_reason` is null, render no note.
+
+---
+
 ## Global Consistency Rules
 
 - max 10 items
@@ -251,8 +271,8 @@ After mapping, render only inside the metadata line.
 - no H1 heading such as `# 今日 AI 热点` or `# 2026年7月4日 AI热点`
 - no H3/H4 wrapper heading above an item block
 - no summary paragraph before the first item
-- no conclusion
-- no extra section after the last item
+- no conclusion, except the Shortfall Note when present
+- no extra section after the last item, except the Shortfall Note when present
 - no wrapper text before or after the content
 - no status text such as “输出至 xxx”, “已渲染”, “结果如下”
 - no explanation of layout, structure, or formatting choices

@@ -59,30 +59,36 @@ Invalid:
 - “recently popular” without timestamp
 - trending without verifiable date
 
-Default target = 10 valid items.
+Maximum = 10 valid items. 10 is a ceiling, not a quota.
 
 If fewer than 10 valid items are found on the first pass:
 - continue searching
 - widen source coverage
-- accept lower-confidence but still valid same-day items
+- accept lower-confidence items only if they fully satisfy every rule
 
-Only return fewer than 10 after exhaustive search across the allowed source set.
-Do NOT pad with fabricated or date-invalid items.
+If the allowed source set is exhausted with fewer than 10 valid items, return fewer and explain why (see SHORTFALL RULE).
+Do NOT pad with fabricated, date-invalid, or weaker items to reach 10.
 
 ---
 
 ## TARGET COUNT RULE
 
-The preferred output size is exactly 10 items.
+The output holds at most 10 items. Reaching 10 is not required.
 
-The model MUST NOT stop early just because it already found a few good examples.
-Finding 3–6 items is not enough unless exhaustive search has already been completed.
+Run the search as a loop, not a single pass:
+
+1. Collect same-day candidates from ladder step 1 onward. Do not apply rejection rules while collecting; keep every candidate that has a source URL and a date.
+2. After each ladder step, validate the collected candidates against the EVIDENCE, CROSS-SOURCE, and REJECTION rules and count the accepted items.
+3. If accepted items >= 10, stop searching and return the top 10 by ranking.
+4. If accepted items < 10, continue to the next ladder step.
+
+Do not conclude that fewer items exist before ladder step 7 is complete.
 
 Priority order:
-1. 10 valid items
-2. fewer than 10 only if the allowed source universe truly does not support 10 same-day items
+1. Every item fully validated; never pad
+2. Up to 10 items; fewer is allowed only when the ladder is exhausted, with shortfall_reason set
 
-Valid low-confidence items are acceptable near the bottom of the list if they still satisfy:
+Valid low-confidence items are acceptable near the bottom of the list only if they still satisfy:
 - same-day evidence
 - verifiable source
 - attributable signal
@@ -92,7 +98,7 @@ Valid low-confidence items are acceptable near the bottom of the list if they st
 
 ## SEARCH EXPANSION LADDER
 
-When the first pass yields fewer than 10 items, expand in this exact order before giving up:
+When accepted items are fewer than 10, expand in this exact order, stopping once 10 are accepted:
 
 1. official launches, releases, and announcements
 2. GitHub same-day releases and unusual same-day attention spikes
@@ -108,13 +114,25 @@ Do not stop after checking only one or two ecosystems.
 
 ## STOPPING CONDITION
 
-You may return fewer than 10 items ONLY if ALL of the following are true:
+Stop searching when either:
 
-- the allowed ecosystems were searched broadly
-- no additional same-day, date-verifiable items could be found
-- remaining candidates would require speculation or rule-breaking
+- accepted items reach 10, or
+- every ladder step (1–7) was searched with today's date filter
 
-When fewer than 10 items are returned, this must be due to evidence scarcity, not model convenience.
+If the search stops with fewer than 10 accepted items, return them with shortfall_reason set (see SHORTFALL RULE).
+Do not lower evidence standards, add speculative items, or pad to reach 10.
+
+---
+
+## SHORTFALL RULE
+
+When fewer than 10 items are returned, set shortfall_reason to one short factual sentence that states:
+
+- how many same-day candidates were checked
+- the main reasons candidates were rejected (for example: missing date, unverifiable source, no same-day trigger, insufficient evidence for category or summary)
+
+When 10 items are returned, shortfall_reason is null.
+Describe only what was actually searched and rejected. Do not invent a cause.
 
 ---
 
@@ -139,7 +157,7 @@ DO NOT prefer any language or region.
 Each trend MUST include:
 
 - at least 1 verifiable source
-- explicit publication date (YYYY-MM-DD)
+- explicit publication date (YYYY-MM-DD), taken from the timestamp the source itself shows (GitHub release date, Hacker News or Reddit post time, Product Hunt launch date, arXiv submission date)
 - evidence must be TODAY
 - a clearly attributable signal (release / launch / discussion spike / ranking / paper / announcement)
 
@@ -159,9 +177,9 @@ Confidence levels:
 
 - High: 3+ independent ecosystems
 - Medium: 2 ecosystems
-- Low: 1 ecosystem (avoid if possible)
+- Low: 1 ecosystem (rank below Medium and High items)
 
-Low confidence is allowed for lower-ranked items when needed to reach 10, but only if the item still fully satisfies the date and evidence rules.
+Low confidence is allowed for lower-ranked items, but only if the item still fully satisfies the date and evidence rules. Never accept a weaker item to reach 10.
 
 Each ecosystem = GitHub / Reddit / HN / PH / arXiv
 
@@ -277,15 +295,19 @@ Interpretation:
 
 ## OUTPUT CONTRACT (DATA ONLY)
 
-Return ONLY a structured array of trend objects in ranked order.
+Return ONLY a JSON object with these keys, in this order:
 
-Preferred transport format: JSON array.
+1. items: array of trend objects in ranked order (empty array if none qualify)
+2. shortfall_reason: null when items has 10 entries; otherwise one factual sentence (see SHORTFALL RULE)
+
+Preferred transport format: JSON.
 
 This JSON-like structure is an internal data handoff for downstream rendering.
 It is NOT the final user-facing presentation format.
 
 If no qualifying items exist:
-- return an empty array
+- return items as an empty array
+- set shortfall_reason
 - do not add prose
 
 Each object MUST contain these fields in this exact order:
